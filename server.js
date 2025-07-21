@@ -29,8 +29,18 @@ app.get('/', (req, res) => {
 
 // Ruta para recibir comandas
 app.post('/comanda', (req, res) => {
-  console.log('📥 Comanda recibida:', req.body);
-  res.json({ status: 'OK', mensaje: 'Comanda recibida correctamente' });
+  const { mesa, plato } = req.body;
+
+  const sql = 'INSERT INTO comandas (mesa, platos) VALUES (?, ?)';
+  db.query(sql, [mesa, JSON.stringify(plato)], (err, result) => {
+    if (err) {
+      console.error('❌ Error al guardar comanda:', err);
+      return res.status(500).json({ status: 'ERROR', mensaje: 'No se pudo guardar la comanda' });
+    }
+
+    console.log('📥 Comanda guardada:', req.body);
+    res.json({ status: 'OK', mensaje: 'Comanda recibida y guardada correctamente' });
+  });
 });
 
 // Iniciar el servidor
