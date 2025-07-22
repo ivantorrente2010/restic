@@ -16,10 +16,10 @@ const db = mysql.createConnection({
 
 db.connect((err) => {
   if (err) {
-    console.error('❌ Error conectando a MySQL:', err);
+    console.error('Error conectando a MySQL:', err);
     return;
   }
-  console.log('✅ Conexión a MySQL establecida');
+  console.log('Conexión a MySQL establecida');
 });
 
 // Ruta de prueba
@@ -28,13 +28,13 @@ app.get('/', (req, res) => {
 });
 
 // Ruta para recibir comandas
-app.post('/comanda', (req, res) => {
-  const { mesa, plato } = req.body;
+app.post('/comandas', (req, res) => {
+  const { mesa, platos } = req.body;
 
   const sql = 'INSERT INTO comandas (mesa, platos) VALUES (?, ?)';
-  db.query(sql, [mesa, JSON.stringify(plato)], (err, result) => {
+  db.query(sql, [mesa, JSON.stringify(platos)], (err, result) => {
     if (err) {
-      console.error('❌ Error al guardar comanda:', err);
+      console.error('Error al guardar comanda:', err);
       return res.status(500).json({ status: 'ERROR', mensaje: 'No se pudo guardar la comanda' });
     }
 
@@ -43,7 +43,68 @@ app.post('/comanda', (req, res) => {
   });
 });
 
+// Ruta para obtener todas las comandas
+app.get('/comandas', (req, res) => {
+  const sql = 'SELECT * FROM comandas ORDER BY fecha DESC';
+  
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error al obtener comandas:', err);
+      return res.status(500).json({ status: 'ERROR', mensaje: 'No se pudieron obtener las comandas' });
+    }
+
+    // Parseamos los platos de JSON string a array
+    const comandas = results.map(c => ({
+      ...c,
+      platos: JSON.parse(c.platos)
+    }));
+
+    res.json({ status: 'OK', comandas });
+  });
+});
+
+// Actualizar una comanda
+app.put('/comandas/:id', (req, res) => {
+  const { id } = req.params;
+  const { mesa, platos } = req.body;
+
+  const sql = 'UPDATE comandas SET mesa = ?, platos = ? WHERE id = ?';
+  db.query(sql, [mesa, JSON.stringify(platos), id], (err, result) => {
+    if (err) {
+      console.error('❌ Error al actualizar comanda:', err);
+      return res.status(500).json({ status: 'ERROR', mensaje: 'No se pudo actualizar la comanda' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ status: 'ERROR', mensaje: 'Comanda no encontrada' });
+    }
+
+    res.json({ status: 'OK', mensaje: 'Comanda actualizada correctamente' });
+  });
+});
+
+
+// Eliminar comandas
+app.delete('/comandas/:id', (req, res) => {
+  const { id } = req.params;
+  const sql = 'DELETE FROM comandas WHERE id = ?';
+
+  db.query(sql, [id], (err, result) => {
+    if (err) {
+      console.error('Error al eliminar comanda:', err);
+      return res.status(500).json({ status: 'ERROR', mensaje: 'No se pudo eliminar la comanda' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ status: 'ERROR', mensaje: 'Comanda no encontrada' });
+    }
+
+    res.json({ status: 'OK', mensaje: 'Comanda eliminada correctamente' });
+  });
+});
+
+
 // Iniciar el servidor
 app.listen(port, () => {
-  console.log(`🚀 Servidor RESTIC activo en http://localhost:${port}`);
+  console.log(` Servidor RESTIC activo en http://localhost:${port}`);
 });
