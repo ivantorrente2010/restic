@@ -83,7 +83,6 @@ app.put('/comandas/:id', (req, res) => {
   });
 });
 
-
 // Eliminar comandas
 app.delete('/comandas/:id', (req, res) => {
   const { id } = req.params;
@@ -100,6 +99,29 @@ app.delete('/comandas/:id', (req, res) => {
     }
 
     res.json({ status: 'OK', mensaje: 'Comanda eliminada correctamente' });
+  });
+});
+
+// Editar una comanda
+
+app.put('/comandas/:id', (req, res) => {
+  const { id } = req.params;
+  const { mesa, platos } = req.body;
+
+  const sql = 'UPDATE comandas SET mesa = ?, platos = ? WHERE id = ?' ;
+  db.query(sql, [mesa, stringify.JSON(platos), id], (err, result) => {
+
+    if (err) {
+      console.error('La comanda no se ha podido actualizar correctamente', err); 
+      return res.status(500).json({ status: 'ERROR', mensaje: 'No se pudo actualizar la comanda' });
+    }
+    
+    if(result.affectedRows === 0 ) {
+      return res.status(404).json({ status: 'ERROR', mensaje: 'Comanda no encontrada' });
+    }
+
+    res.json({status: 'OK', mensaje: 'Comanda actualizada correctamente'});
+
   });
 });
 
