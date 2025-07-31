@@ -1,8 +1,23 @@
 <!DOCTYPE html>
 <html>
-  <head><title>RESTIC</title></head>
-  <body>
-    <h1>Bienvenido a RESTIC</h1>
-    <p>Tu app de comandas en escritorio.</p>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <title>RESTIC - Comandas</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <h1>Comandas</h1>
+
+  <ul id="comandas-list"></ul>
+
+  <h2>Añadir nueva comanda</h2>
+  <form id="comanda-form">
+    <input type="text" id="mesa" placeholder="mesa" required />
+    <input type="text" id="platos" placeholder="platos" required />
+    <button type="submit">Añadir</button>
+  </form>
+
+  <script src="renderer.js"></script>
+  
+</body>
 </html>
